@@ -1,35 +1,55 @@
-from utils_v2 import *
+from utils import *
 import requests,json,random,time,pickle,sys
 from requests.exceptions import HTTPError
 
 def generate_map():
+    g = graph.vertices
     while len(visited) < 500:
         #get current room
         current = get_current_room()
-        print('current room', current['room_id'])
+        curr_id = current['room_id']
+        print('current room', curr_id )
 
-        #record the room in the graph
-        record_room(current)
+        #record the room in the graph. if already recorded returns the room entry in the graph.
+        record_room(current)  #returns the room_exits of the current room.
 
         #choose a random '?' exit
-        way = random_exit(current)[0]  #way is a tuple of ('n','?') or ('s',150)
-        print('next way:', way)
-        # print(way)
+        way,way_id = random_exit(current) #way is a tuple of ('n','?') or ('s',150)
+        print('randomly selected: ', way, way_id)
 
-        # if len(way):
-        #     way = way[0]
-
+        # if way_id != '?':
+        #     unexplored = {r_id:g[r_id] for r_id in g if '?' in g[r_id].values()}
+        #     new_id,new_exits = random.choice([*unexplored.items()])
+        #     print(new_id,new_exits, 'newid, newexits')
+        #     bfs_path = graph.bfs_ids(curr_id,new_id)
+        #     print('bfs_path', bfs_path)
+        #     # bfs_path = bfs_path[1:] #skip the first room because already in the first room. 
+        #     for i,r_id in enumerate(bfs_path):
+        #         try:
+        #             next_rid = bfs_path[i+1]
+        #         except:
+        #             next_rid = None
+        #             break
+        #         next_way = [way for way in g[r_id] if g[r_id][way] == next_rid]
+        #         print('next_way in bfs path', next_way)
+        #         if len(next_way):
+        #             next_way = next_way[0]
+        #         next = move(next_way)
+        #         record_room(next)
+        #         cur_id,next_id = current['room_id'],next['room_id']
+        #         print(cur_id,next_id)
+        #         update_rooms(cur_id,way,next_id)
+        #     print('current room after BFS', get_current_room())
+        # else:
         next = move(way)
         record_room(next)
 
         cur_id,next_id = current['room_id'],next['room_id']
         print(cur_id,next_id)
+
         update_rooms(cur_id,way,next_id)
 
-        # print('graph', graph)
-        # print('visited', visited)
-        print('traversal path: ', graph.traversal_path)
-        print('rooms visited: ', len(visited))
+        print('\nrooms visited: ', len(visited), '\n')
         
         with open('pyisland.json','w') as pyisland_map:
             print('dumping graph json to', 'pyisland_map')

@@ -29,16 +29,16 @@ def record_room(room):
     room_id,exits = room['room_id'],room['exits']
     if room_id in graph.vertices:
         print('room ', room_id, 'already exists in map_graph')
-        return
+        return graph.vertices[room_id]
     print('recording room', room_id)
     graph.data.add(json.dumps(room))
-    graph.traversal_path.append(room['room_id'])
-    visited.add(room['room_id'])
+    graph.traversal_path.append(room_id)
+    visited.add(room_id)
     room_entry = {}
     for way in exits:
         room_entry[way] = '?'
-    graph.vertices[room['room_id']] = room_entry
-    return
+    graph.vertices[room_id] = room_entry
+    return graph.vertices[room_id]
 
 def flip_way(way):
     directions = {'n': 's', 's':'n', 'e':'w', 'w':'e'}
@@ -55,14 +55,13 @@ def random_exit(room):
     room_id = room['room_id']
     
     if '?' not in g[room_id].values():
-        
         known_exit = random.choice([*g[room_id].items()])
-        print('no unknown exits to explore here, randomly choosing exit: ', known_exit)
+        print('no unknown exits to explore here, randomly choosing explored exit: ', known_exit)
         return known_exit
     
     print('all exits for ', room_id, ':', g[room_id])
     unexplored = {way:g[room_id][way] for way in g[room_id] if g[room_id][way] == '?'}
-    print('unexplored', unexplored)
+    print("room id", room_id,' unexplored exits', unexplored)
     rand_exit = random.choice([*unexplored.items()])
     return rand_exit
 

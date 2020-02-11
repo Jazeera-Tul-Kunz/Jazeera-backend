@@ -47,8 +47,8 @@ class Graph:
                 new_path.append(neighbor)
                 queue.enqueue(new_path)
 
-    def load_data(self,dictionary):
-        self.vertices = dictionary
+    # def load_data(self,dictionary):
+    #     self.vertices = dictionary
 
     def add_vertex(self, room_id, dirs):
         """
@@ -57,18 +57,18 @@ class Graph:
         self.vertices[room_id] = {i: "?" for i in dirs}
         # self.vertices[room_id] = {'n': '?', 's':'?', 'e': '?', 'w':'?'}
 
-    def add_data(self, datum):
-        self.data.add(datum)
+    # def add_data(self, datum):
+    #     self.data.add(datum)
 
-    def add_edge(self, v1, v2):
-        """
-        Add a directed edge to the graph.
-        If both exits, connect v1 to v2
-        """
-        if v1 in self.vertices and v2 in self.vertices:
-            self.vertices[v1].add(v2)
-        else:
-            raise IndexError('That vertex does not exist')
+    # def add_edge(self, v1, v2):
+    #     """
+    #     Add a directed edge to the graph.
+    #     If both exits, connect v1 to v2
+    #     """
+    #     if v1 in self.vertices and v2 in self.vertices:
+    #         self.vertices[v1].add(v2)
+    #     else:
+    #         raise IndexError('That vertex does not exist')
 
     def get_neighbors(self, vertex_id):
         """
@@ -136,6 +136,30 @@ class Graph:
         for neighb_vert in self.vertices[starting_vertex]:
             if neighb_vert not in visited:
                 self.dft_recursive(neighb_vert, visited)
+
+    def bfs_ids(self,start_id,target_id):
+        queue = Queue()
+        queue.enqueue([start_id])
+        visited_bfs = set()
+
+        while queue.size > 0:
+            path = queue.dequeue()
+            room_id = path[-1]
+
+            if room_id not in visited_bfs:
+                if room_id == target_id:
+                    return path
+                visited_bfs.add(room_id)
+            
+            for neighbor_id in self.vertices[room_id].values():
+                # if neighbor_id == '?':
+
+                #     continue
+            # for way,neighbor_id in self.vertices[room_id].items():
+                new_path = list(path)
+                new_path.append(neighbor_id)
+                queue.enqueue(new_path)
+
 
     def bfs(self, starting_vertex, destination_vertex):
         """

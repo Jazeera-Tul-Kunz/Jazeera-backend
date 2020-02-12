@@ -1,5 +1,5 @@
 import json,os,sys,time,requests,random
-from data_structures import Graph
+from data_structures import *
 
 adv_url = 'https://lambda-treasure-hunt.herokuapp.com/api/adv'
 graph = Graph()
@@ -80,3 +80,58 @@ def move(way):
     print('cooling down. please wait...',new_room['cooldown'])
     time.sleep(new_room['cooldown'])
     return new_room
+
+def wise_move(way,room_id):
+    if not len(way):
+        return get_current_room()
+    print('wise move', way)
+    res = requests.post(f"{adv_url}/move",headers=auth,json={'direction':way, "next_room_id":str(room_id)})
+    if res:
+        print('successful response', res.status_code)
+        new_room = res.json()
+    else:
+        print('error', res.status_code)
+        sys.exit(1)
+    print('moved to room: ', new_room['room_id'])
+    print('cooling down. please wait...',new_room['cooldown'])
+    time.sleep(new_room['cooldown'])
+    return new_room
+
+
+def bfs_island(start_id,end_id):
+    print('start',start_id,'end',end_id)
+
+    queue = Queue()
+    queue.enqueue([start_id])
+    visited = set()
+
+    while queue.size > 0:
+        path = queue.dequeue()
+        room_id = path[-1]
+
+        if room_id not in visited:
+            if room_id == end_id:
+                return path
+            visited.add(room_id)
+
+            for neigh_id in graph.vertices[room_id].values():
+                if neigh_id == '?':
+                    print('graph.vertices[room_id]', graph.vertices[room_id])
+                    way = [way for way in graph.vertices[room_id] if graph.vertices[room_id][way] == '?'][0]
+                    
+                    # if len(way):
+                    #     way = way[0]
+                    print('neigh_id == "?" in bfs: ', way)
+                    next = move(way)
+                    record_room(next)
+                    update_rooms(room_id,way,next['room_id'])
+                    flip = flip_way(way)
+                    current = move(flip)
+
+                    new_path = list(path)
+                    new_path.append(next['room_id'])
+                    queue.enqueue(new_path)
+                else:
+                    new_path = list(path)
+                    new_path.append(neigh_id)
+                    queue.enqueue(new_path)

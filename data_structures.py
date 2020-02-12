@@ -1,3 +1,5 @@
+import json
+from utils import *
 
 class Graph:
     """Represent a graph as a dictionary of vertices mapping labels to edges."""
@@ -69,6 +71,22 @@ class Graph:
     #         self.vertices[v1].add(v2)
     #     else:
     #         raise IndexError('That vertex does not exist')
+
+    def move(self, way):
+        if not len(way):
+            return get_current_room()
+        print('moving ', way)
+        res = requests.post(f"{adv_url}/move",headers=auth,json={'direction':way})
+        if res:
+            print('successful response', res.status_code)
+            new_room = res.json()
+        else:
+            print('error', res.status_code)
+            sys.exit(1)
+        print('moved to room: ', new_room['room_id'])
+        print('cooling down. please wait...',new_room['cooldown'])
+        time.sleep(new_room['cooldown'])
+        return new_room
 
     def get_neighbors(self, vertex_id):
         """
@@ -159,6 +177,41 @@ class Graph:
                 new_path = list(path)
                 new_path.append(neighbor_id)
                 queue.enqueue(new_path)
+
+    def bfs_island(self,start_id,end_id):
+        print('start',start_id,'end',end_id)
+
+        queue = Queue()
+        queue.enqueue([start_id])
+        visited = set()
+
+        while queue.size > 0:
+            path = queue.dequeue()
+            room_id = path[-1]
+
+            if room_id not in visited:
+                if room_id == end_id:
+                    return path
+                visited.add(room_id)
+
+                for neigh_id in self.vertices[room_id].values():
+                    if neigh_id == '?':
+                        way = [way for way in self.vertices[room_id] if self.vertices[room_id][way] == '?'][0]
+                        print('way in bfs_island if neigh_id == "?"',way)
+                        next = self.move(way)
+                        record_room(next)
+                        update_rooms(room_id,way,next['room_id'])
+                        flip = flip_way(way)
+                        current = self.move(flip)
+
+                        new_path = list(path)
+                        new_path.append(next['room_id'])
+                        queue.enqueue(new_path)
+                    else:
+                        new_path = list(path)
+                        new_path.append(neigh_id)
+                        queue.enqueue(new_path)
+                
 
 
     def bfs(self, starting_vertex, destination_vertex):

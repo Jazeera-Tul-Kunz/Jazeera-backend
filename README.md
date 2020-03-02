@@ -1,5 +1,17 @@
 # Jazeera-Tul-Kunz
 
+
+### Tech Stack:
+Python <br/>
+
+### Dependencies/Packages:
+python 3.x
+json 2.0.9
+requests 2.21.0
+pickle 4.0
+
+
+
 ### Backend Deployed at [Heroku](https://lambda-treasure-hunt.herokuapp.com/api)
 
 
